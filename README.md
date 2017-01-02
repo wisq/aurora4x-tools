@@ -12,6 +12,7 @@ Current feedback areas:
 
 * Are you using all your research labs?
 * Do all your colonies have governors?
+* Is all your industry in use?
 
 Note that some of the above may be duplicates of in-game warnings — but you typically only get those warnings after your next jump, which could be up to 30 days of e.g. wasted lab time.  This lets you keep on top of things and avoid wasted time.
 
