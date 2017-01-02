@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'pry'
+require 'set'
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'lib/model'
@@ -69,26 +70,30 @@ def check_industry
   end
 end
 
+def run_check(issues, function, text)
+  old_count = $buffer.count
+  send(function)
+
+  if $buffer.count != old_count
+    issues << function
+  elsif issues.include?(function)
+    output :good, text
+  end
+end
+
 def watch_until_after(time)
-  had_issues = false
   first = true
   last_buffer = []
+  issues = Set.new
 
   loop do
     $buffer = []
-    check_labs
-    check_admins
-    check_industry
 
-    if $buffer.empty?
-      if had_issues
-        output :good, "All issues resolved."
-      else
-        output :good, "No issues."
-      end
-    else
-      had_issues = true
-    end
+    run_check(issues, :check_labs, 'All research labs busy.')
+    run_check(issues, :check_admins, 'All administrators assigned.')
+    run_check(issues, :check_industry, 'All industry in use.')
+
+    output :good, 'No issues.' if $buffer.empty?
 
     sleep(if first then 0.5 else 1.0 end)
     first = false
