@@ -4,6 +4,7 @@ require 'active_support/core_ext/time'
 DB = Sequel.odbc('aurora', db_type: 'access')
 
 GAME_ID = DB[:Game].max(:GameID)
+RACE_IDS = DB[:Race].where(GameID: GAME_ID, NPR: false).map { |r| r[:RaceID] }
 
 class Game < Sequel::Model
   set_dataset DB[:Game].where(GameID: GAME_ID)
@@ -63,7 +64,7 @@ class Population < Sequel::Model
 end
 
 class Governor < Sequel::Model
-  set_dataset DB[:Commander].where(GameID: GAME_ID, CommandType: 3)
+  set_dataset DB[:Commander].where(GameID: GAME_ID, CommandType: [3, 4])
   set_primary_key :CommanderID
 end
 
@@ -75,4 +76,19 @@ end
 class IndustrialProject < Sequel::Model
   set_dataset DB[:IndustrialProjects].where(GameID: GAME_ID)
   set_primary_key :ProjectID
+end
+
+class SectorCommand < Sequel::Model
+  set_dataset DB[:SectorCommand].where(RaceID: RACE_IDS)
+  set_primary_key :SectorCommandID
+
+  one_to_many :governor, key: :CommandID
+
+  def SectorCommandID
+    self[:SectorCommandID]
+  end
+
+  def name
+    self[:SectorName]
+  end
 end

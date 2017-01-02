@@ -45,6 +45,12 @@ def check_admins
       output :urgent, "No governor on #{name}."
     end
   end
+
+  SectorCommand.each do |sector|
+    if sector.governor.nil?
+      output :urgent, "No governor for #{sector.name}."
+    end
+  end
 end
 
 def check_industry
