@@ -55,6 +55,8 @@ end
 
 def check_industry
   Population.each do |pop|
+    next unless pop.has_industry?
+
     used = pop.used_industry
     if used < 100.0
       name = pop.system_body.name

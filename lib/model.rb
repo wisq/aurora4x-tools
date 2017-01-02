@@ -58,6 +58,11 @@ class Population < Sequel::Model
     ResearchProject.where(PopulationID: id).sum(:facilities).to_f
   end
 
+  def has_industry?
+    self[:ConstructionFactories].to_f > 0.0 ||
+      self[:ConventionalFactories].to_f > 0.0
+  end
+
   def used_industry
     IndustrialProject.where(PopulationID: id, Queue: 0, Pause: false).sum(:Percentage).to_f
   end
