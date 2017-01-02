@@ -88,7 +88,7 @@ def watch_until_after(time)
       had_issues = true
     end
 
-    sleep(1) unless first
+    sleep(if first then 0.5 else 1.0 end)
     first = false
 
     if Game.time == time
