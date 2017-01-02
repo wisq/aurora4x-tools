@@ -38,7 +38,7 @@ class Population < Sequel::Model
   set_primary_key :PopulationID
 
   many_to_one :system_body, key: :system_body_id
-  one_to_many :governor, key: :CommandID
+  one_to_many :governors, key: :CommandID
 
   def PopulationID
     self[:PopulationID]
@@ -61,6 +61,10 @@ class Population < Sequel::Model
   def used_industry
     IndustrialProject.where(PopulationID: id, Queue: 0, Pause: false).sum(:Percentage).to_f
   end
+
+  def governor
+    governors.first
+  end
 end
 
 class Governor < Sequel::Model
@@ -82,7 +86,7 @@ class SectorCommand < Sequel::Model
   set_dataset DB[:SectorCommand].where(RaceID: RACE_IDS)
   set_primary_key :SectorCommandID
 
-  one_to_many :governor, key: :CommandID
+  one_to_many :governors, key: :CommandID
 
   def SectorCommandID
     self[:SectorCommandID]
@@ -90,5 +94,9 @@ class SectorCommand < Sequel::Model
 
   def name
     self[:SectorName]
+  end
+
+  def governor
+    governors.first
   end
 end
