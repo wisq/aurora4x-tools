@@ -42,6 +42,7 @@ class Population < Sequel::Model
   def PopulationID
     self[:PopulationID]
   end
+  alias_method :id, :PopulationID
 
   def system_body_id
     self[:SystemBodyID]
@@ -53,7 +54,11 @@ class Population < Sequel::Model
 
   def used_labs
     pop_id = self[:PopulationID]
-    ResearchProject.where(PopulationID: pop_id).sum(:facilities).to_f
+    ResearchProject.where(PopulationID: id).sum(:facilities).to_f
+  end
+
+  def used_industry
+    IndustrialProject.where(PopulationID: id, Queue: 0, Pause: false).sum(:Percentage).to_f
   end
 end
 
@@ -64,5 +69,10 @@ end
 
 class ResearchProject < Sequel::Model
   set_dataset DB[:ResearchProject]
+  set_primary_key :ProjectID
+end
+
+class IndustrialProject < Sequel::Model
+  set_dataset DB[:IndustrialProjects].where(GameID: GAME_ID)
   set_primary_key :ProjectID
 end
