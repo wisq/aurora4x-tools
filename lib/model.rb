@@ -64,7 +64,9 @@ class Population < Sequel::Model
   end
 
   def has_mines?
-    self[:Mines].to_f > 0.0 || self[:RemoteMines].to_f > 0.0
+    self[:Mines].to_f > 0.0 ||
+      self[:RemoteMines].to_f > 0.0 ||
+      self[:CivilianMiningComplex] > 0
   end
 
   def has_mass_drivers?
