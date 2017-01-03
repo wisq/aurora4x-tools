@@ -75,6 +75,9 @@ def check_mines
     # Don't check colonies that are probably producing mines
     # and producing + receiving mass drivers.
     next if pop.has_industry?
+    # Developed colonies might need mass drivers to receive resources,
+    # e.g. for ground unit training.
+    next if pop.population > 1_000_000.0
 
     if pop.has_mines?
       name = pop.system_body.name

@@ -88,6 +88,10 @@ class Population < Sequel::Model
   def governor
     governors.first
   end
+
+  def population
+    self[:Population].to_f * 1_000_000
+  end
 end
 
 class Governor < Sequel::Model
