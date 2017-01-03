@@ -96,7 +96,7 @@ def run_check(issues, function, text)
 
   if $buffer.count != old_count
     issues << function
-  elsif issues.include?(function)
+  elsif issues.delete?(function)
     output :good, text
   end
 end
@@ -114,7 +114,7 @@ def watch_until_after(time)
     run_check(issues, :check_industry, 'All industry in use.')
     run_check(issues, :check_mines, 'All mining colonies operational.')
 
-    output :good, 'No issues.' if $buffer.empty?
+    output :good, 'No issues.' if issues.empty?
 
     sleep(if first then 0.5 else 1.0 end)
     first = false
