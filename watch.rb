@@ -77,8 +77,8 @@ def check_mines
     next if pop.has_industry?
 
     if pop.has_mines?
+      name = pop.system_body.name
       if !pop.has_minerals?
-        name = pop.system_body.name
         output :warning, "Mining colony #{name} has no minerals left."
       elsif pop.has_mass_drivers? && !pop.has_mass_driver_target?
         output :warning, "Mining colony #{name} has no mass driver target."
