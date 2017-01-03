@@ -70,6 +70,26 @@ def check_industry
   end
 end
 
+def check_mines
+  Population.each do |pop|
+    # Don't check colonies that are probably producing mines
+    # and producing + receiving mass drivers.
+    next if pop.has_industry?
+
+    if pop.has_mines?
+      if !pop.has_minerals?
+        name = pop.system_body.name
+        output :warning, "Mining colony #{name} has no minerals left."
+      elsif pop.has_mass_drivers? && !pop.has_mass_driver_target?
+        output :warning, "Mining colony #{name} has no mass driver target."
+      end
+    elsif pop.has_mass_drivers?
+      name = pop.system_body.name
+      output :warning, "Colony #{name} has mass drivers but no mines."
+    end
+  end
+end
+
 def run_check(issues, function, text)
   old_count = $buffer.count
   send(function)
@@ -92,6 +112,7 @@ def watch_until_after(time)
     run_check(issues, :check_labs, 'All research labs busy.')
     run_check(issues, :check_admins, 'All administrators assigned.')
     run_check(issues, :check_industry, 'All industry in use.')
+    run_check(issues, :check_mines, 'All mining colonies operational.')
 
     output :good, 'No issues.' if $buffer.empty?
 

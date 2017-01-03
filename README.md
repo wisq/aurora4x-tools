@@ -10,9 +10,14 @@ Watches your game and provides feedback.
 
 Current feedback areas:
 
-* Are you using all your research labs?
 * Do all your colonies and sectors have governors?
-* Is all your industry in use?
+* Are you using all your …
+  * Research labs?
+  * Factories?
+* Are all your mining colonies operational?
+  * Do they have minerals left?
+  * If they have mass drivers, do they have a target?
+  * Are there any mass drivers on mining colonies with no mines?
 
 Note that some of the above may be duplicates of in-game warnings — but you typically only get those warnings after your next jump, which could be up to 30 days of e.g. wasted lab time.  This lets you keep on top of things and avoid wasted time.
 

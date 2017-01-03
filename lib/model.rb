@@ -63,6 +63,22 @@ class Population < Sequel::Model
       self[:ConventionalFactories].to_f > 0.0
   end
 
+  def has_mines?
+    self[:Mines].to_f > 0.0 || self[:RemoteMines].to_f > 0.0
+  end
+
+  def has_mass_drivers?
+    self[:MassDriver].to_f > 0.0
+  end
+
+  def has_mass_driver_target?
+    self[:MassDriverDest] != 0
+  end
+
+  def has_minerals?
+    MineralDeposit.where(SystemBodyID: self[:SystemBodyID]).count > 0
+  end
+
   def used_industry
     IndustrialProject.where(PopulationID: id, Queue: 0, Pause: false).sum(:Percentage).to_f
   end
@@ -104,4 +120,9 @@ class SectorCommand < Sequel::Model
   def governor
     governors.first
   end
+end
+
+class MineralDeposit < Sequel::Model
+  set_dataset DB[:MineralDeposit]
+  set_primary_key :MineralDepositID
 end
