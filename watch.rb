@@ -71,7 +71,10 @@ def check_industry
 end
 
 def check_mines
-  Population.each do |pop|
+  populations = Population.all
+  mass_driver_target_ids = populations.map { |p| p[:MassDriverDest].to_i }
+
+  populations.each do |pop|
     # Don't check colonies that are probably producing mines
     # and producing + receiving mass drivers.
     next if pop.has_industry?
@@ -84,7 +87,8 @@ def check_mines
       if !pop.has_minerals?
         output :warning, "Mining colony #{name} has no minerals left."
       elsif pop.has_mass_drivers? && !pop.has_mass_driver_target?
-        output :warning, "Mining colony #{name} has no mass driver target."
+        output :warning, "Mining colony #{name} has no mass driver target." \
+          unless mass_driver_target_ids.include?(pop.id)
       end
     elsif pop.has_mass_drivers?
       name = pop.system_body.name
