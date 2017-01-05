@@ -34,7 +34,7 @@ class SystemBody < Sequel::Model
 end
 
 class Population < Sequel::Model
-  set_dataset DB[:Population].where(GameID: GAME_ID)
+  set_dataset DB[:Population].where(GameID: GAME_ID, RaceID: RACE_IDS)
   set_primary_key :PopulationID
 
   many_to_one :system_body, key: :system_body_id
