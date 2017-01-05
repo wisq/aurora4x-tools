@@ -105,9 +105,9 @@ def run_check(issues, function, text)
 end
 
 def watch_until_after(time)
-  first = true
   last_buffer = []
   issues = Set.new
+  first_pass = true
 
   loop do
     $buffer = []
@@ -116,19 +116,49 @@ def watch_until_after(time)
     run_check(issues, :check_admins, 'All administrators assigned.')
     run_check(issues, :check_industry, 'All industry in use.')
     run_check(issues, :check_mines, 'All mining colonies operational.')
+    run_check(issues, :check_cmdr_health, 'All administrators & resarchers are healthy.')
 
-    output :good, 'No issues.' if issues.empty?
-
-    sleep(if first then 0.5 else 1.0 end)
-    first = false
-
-    if Game.time == time
-      to_output = $buffer - last_buffer
-      puts *to_output unless to_output.empty?
-      last_buffer = $buffer
-    else
-      break
+    sleep_duration = 2.0
+    if issues.empty?
+      output :good, 'No issues.' if issues.empty?
+      sleep_duration = 5.0
     end
+
+    # So here's a problem we have:
+    #
+    # When you click a time advance button, the game starts
+    # simulating immediately, without updating the game time.
+    #
+    # This means that new issues can pop up before we know
+    # the current turn is over.  The issues from this turn
+    # will show up in the previous turn, making the user
+    # think they left something unfixed.
+    #
+    # To mitigate this (without making things annoyingly
+    # unresponsive), on the first pass, we output immediately;
+    # but on subsequent passes, we do our sleep (and turn check)
+    # *before* we output anything, and skip output if time advances.
+    #
+    # We still want a basic time check, however, so we do a
+    # zero-second sleep here no matter what.
+    wait_game_advance(time, if first_pass then 0.0 else sleep_duration end)
+
+    to_output = $buffer - last_buffer
+    puts *to_output unless to_output.empty?
+    last_buffer = $buffer
+
+    # We don't need to do a zero-second sleep here,
+    # so we only sleep on the first run.
+    break if first_pass && wait_game_advance(time, sleep_duration)
+  end
+end
+
+def wait_game_advance(game_time, seconds)
+  target = Time.now + seconds
+  loop do
+    return true if Game.time != game_time
+    return false if Time.now > target
+    sleep(0.2)
   end
 end
 
