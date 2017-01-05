@@ -97,6 +97,16 @@ def check_mines
   end
 end
 
+def check_cmdr_health
+  [Governor, Researcher].each do |cls|
+    cls.each do |cmdr|
+      if (risk = cmdr.health_risk) > 5.0
+        output :warning, "#{cmdr.full_title} has a #{"%.1f" % risk}% annual health risk."
+      end
+    end
+  end
+end
+
 def run_check(issues, function, text)
   old_count = $buffer.count
   send(function)

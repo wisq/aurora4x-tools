@@ -12,6 +12,7 @@ class Game < Sequel::Model
 
   DAY = 86400
   MONTH = DAY*30
+  YEAR = MONTH*12
 
   def self.time
     start_year, game_time = get([:StartYear, :GameTime])
@@ -21,6 +22,10 @@ class Game < Sequel::Model
       months: game_time / MONTH,
       seconds: game_time % MONTH,
     )
+  end
+
+  def self.gametime
+    get(:GameTime).to_f
   end
 end
 
@@ -94,9 +99,76 @@ class Population < Sequel::Model
   end
 end
 
-class Governor < Sequel::Model
-  set_dataset DB[:Commander].where(GameID: GAME_ID, CommandType: [3, 4])
+class Commander < Sequel::Model
+  set_dataset DB[:Commander].where(GameID: GAME_ID, RaceID: RACE_IDS)
   set_primary_key :CommanderID
+
+  START_AGE = 21
+
+  def CommandID
+    self[:CommandID]
+  end
+
+  def name
+    self[:Name]
+  end
+
+  def years_old
+    (Game.gametime - self[:CareerStart]) / Game::YEAR + START_AGE
+  end
+
+  def health_risk
+    # http://aurora2.pentarch.org/index.php?topic=841.0
+    risk = self[:HealthRisk].to_f
+    if (age = self.years_old) > 61.0
+      risk += (years_old - 60)/2
+    end
+    return risk
+  end
+end
+
+class Governor < Commander
+  set_dataset Commander.where(CommandType: [3, 4])
+
+  many_to_one :population, key: :CommandID
+
+  def governed_body
+    population.system_body
+  end
+
+  def full_title
+    "Governor #{name} of #{governed_body.name}"
+  end
+end
+
+class Researcher < Commander
+  set_dataset Commander.where(CommandType: 7)
+
+  def field
+    ResearchField.by_id(self[:ResSpecID])
+  end
+
+  def full_title
+    "Researcher #{name} (#{field.abbreviation})"
+  end
+end
+
+class ResearchField < Sequel::Model
+  # Memoized because it never changes.
+  def self.by_id(id)
+    @fields_by_id ||= map_fields_by_id
+    @fields_by_id.fetch(id)
+  end
+
+  def self.map_fields_by_id
+    all.map do |field|
+      [field[:ResearchFieldID], field]
+    end.to_h
+  end
+
+  def abbreviation
+    self[:Abbreviation]
+  end
 end
 
 class ResearchProject < Sequel::Model
