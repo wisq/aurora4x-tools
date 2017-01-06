@@ -14,6 +14,7 @@ PRIORITIES = {
 }
 
 def output(priority, message)
+  message = message.force_encoding('cp1252').encode('utf-8')
   $buffer << ansi(PRIORITIES.fetch(priority)) + message + ansi_normal
 end
 
@@ -131,6 +132,8 @@ def watch_until_after(time)
     if issues.empty?
       output :good, 'No issues.' if issues.empty?
       sleep_duration = 5.0
+    else
+      output :warning, "(#{issues.count} issues)"
     end
 
     # So here's a problem we have:

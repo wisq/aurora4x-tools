@@ -172,6 +172,8 @@ class Researcher < Commander
 end
 
 class ResearchField < Sequel::Model
+  set_dataset DB[:ResearchField]
+
   # Memoized because it never changes.
   def self.by_id(id)
     @fields_by_id ||= map_fields_by_id
