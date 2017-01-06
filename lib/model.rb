@@ -14,7 +14,7 @@ class Game < Sequel::Model
   MONTH = DAY*30
   YEAR = MONTH*12
 
-  def self.time
+  def self.real_time(time = self.time)
     start_year, game_time = get([:StartYear, :GameTime])
     game_time = game_time.to_i
 
@@ -24,8 +24,12 @@ class Game < Sequel::Model
     )
   end
 
-  def self.gametime
+  def self.time
     get(:GameTime).to_f
+  end
+
+  def self.last_time
+    get(:PreviousGameTime).to_f
   end
 end
 
@@ -114,7 +118,7 @@ class Commander < Sequel::Model
   end
 
   def years_old
-    (Game.gametime - self[:CareerStart]) / Game::YEAR + START_AGE
+    (Game.time - self[:CareerStart]) / Game::YEAR + START_AGE
   end
 
   def health_risk
@@ -203,4 +207,17 @@ end
 class MineralDeposit < Sequel::Model
   set_dataset DB[:MineralDeposit]
   set_primary_key :MineralDepositID
+end
+
+class GameLog < Sequel::Model
+  set_dataset DB[:GameLog].where(GameID: GAME_ID, RaceID: RACE_IDS)
+  set_primary_key :GameLogID
+
+  def text
+    self[:MessageText]
+  end
+
+  def time
+    self[:Time]
+  end
 end

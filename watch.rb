@@ -176,15 +176,34 @@ def wait_game_advance(game_time, seconds)
   end
 end
 
+def deathwatch(time_range)
+  $buffer = []
+  GameLog.where(EventType: 99, Time: time_range).order(:Time).each do |log|
+    next if log.time == time_range.min
+    next if log.text.end_with?(': Unassigned')
+    next if log.text.include?(': C.O. ')
+
+    prio = if log.text.include?('Assignment prior to ') then :urgent else :warning end
+
+    log.text.gsub(/  +/, ' ').split(/(?<=\.) (?=(?:Current )?Assignment)/).each do |line|
+      output prio, line
+    end
+    $buffer << ''
+  end
+  puts *$buffer unless $buffer.empty?
+end
+
 TIMESTAMP_FORMAT = "--- %Y-%m-%d %H:%M:%S ---"
 
 def watch
-  last_time = nil
+  last_time = Game.last_time
 
   puts
   loop do
     time = Game.time
-    timestamp = time.strftime(TIMESTAMP_FORMAT)
+    deathwatch(last_time..time) if last_time
+
+    timestamp = Game.real_time(time).strftime(TIMESTAMP_FORMAT)
     puts(timestamp)
 
     begin
@@ -192,6 +211,7 @@ def watch
     ensure
       puts('-' * timestamp.length, '')
     end
+    last_time = time
   end
 rescue Interrupt
   puts 'Exiting.'
