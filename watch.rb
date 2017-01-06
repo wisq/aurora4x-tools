@@ -32,9 +32,8 @@ def check_labs
     used_labs = pop.used_labs
 
     if used_labs != total_labs
-      name = pop.system_body.name
       unused = total_labs - used_labs
-      output :urgent, "#{unused} research labs available on #{name}."
+      output :urgent, "#{unused} research labs available on #{pop.name}."
     end
   end
 end
@@ -42,8 +41,7 @@ end
 def check_admins
   Population.each do |pop|
     if pop.governor.nil?
-      name = pop.system_body.name
-      output :urgent, "No governor on #{name}."
+      output :urgent, "No governor on #{pop.name}."
     end
   end
 
@@ -60,9 +58,8 @@ def check_industry
 
     used = pop.used_industry
     if used < 100.0
-      name = pop.system_body.name
       if used == 0.0
-        output :warning, "No industrial production on #{name}."
+        output :warning, "No industrial production on #{pop.name}."
       else
         output :warning, "Only using #{used}% production on #{name}."
       end
@@ -83,16 +80,14 @@ def check_mines
     next if pop.population > 1_000_000.0
 
     if pop.has_mines?
-      name = pop.system_body.name
       if !pop.has_minerals?
-        output :warning, "Mining colony #{name} has no minerals left."
+        output :warning, "Mining colony #{pop.name} has no minerals left."
       elsif pop.has_mass_drivers? && !pop.has_mass_driver_target?
-        output :warning, "Mining colony #{name} has no mass driver target." \
+        output :warning, "Mining colony #{pop.name} has no mass driver target." \
           unless mass_driver_target_ids.include?(pop.id)
       end
     elsif pop.has_mass_drivers?
-      name = pop.system_body.name
-      output :warning, "Colony #{name} has mass drivers but no mines."
+      output :warning, "Colony #{pop.name} has mass drivers but no mines."
     end
   end
 end

@@ -42,6 +42,11 @@ class SystemBody < Sequel::Model
   end
 end
 
+class SystemBodyName < Sequel::Model
+  set_dataset DB[:SystemBodyName]
+  set_primary_key :SystemBodyNameID
+end
+
 class Population < Sequel::Model
   set_dataset DB[:Population].where(GameID: GAME_ID, RaceID: RACE_IDS)
   set_primary_key :PopulationID
@@ -57,6 +62,15 @@ class Population < Sequel::Model
   def system_body_id
     self[:SystemBodyID]
   end
+
+  def system_body_name
+    if name = SystemBodyName.where(RaceID: self[:RaceID], SystemBodyID: self[:SystemBodyID]).get(:Name)
+      return name
+    else
+      return SystemBody.where(SystemBodyID: self[:SystemBodyID]).get(:Name)
+    end
+  end
+  alias_method :name, :system_body_name
 
   def total_labs
     self[:ResearchLabs].to_f
