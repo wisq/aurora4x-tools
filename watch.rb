@@ -62,7 +62,7 @@ def check_industry
       if used == 0.0
         output :warning, "No industrial production on #{pop.name}."
       else
-        output :warning, "Only using #{used}% production on #{name}."
+        output :warning, "Only using #{used}% production on #{pop.name}."
       end
     end
   end
