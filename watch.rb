@@ -96,7 +96,7 @@ end
 def check_cmdr_health
   [Governor, Researcher].each do |cls|
     cls.each do |cmdr|
-      if (risk = cmdr.health_risk) > 5.0
+      if (risk = cmdr.health_risk) > 8.0 # "Very Poor" health
         output :warning, "#{cmdr.full_title} has a #{"%.1f" % risk}% annual health risk."
       end
     end
