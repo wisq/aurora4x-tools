@@ -19,10 +19,11 @@ Current feedback areas:
   * Are there any mass drivers on mining colonies with no mines?
 * Do all your colonies and sectors have governors?
 * Are any of your assigned governors or researchers going to die / retire soon?
+  * Did any of them die last turn, and how/why?  (Monitors the game log.)
 
 Note that some of the above may be duplicates of in-game warnings — but you typically only get those warnings after your next jump, which could be up to 30 days of e.g. wasted lab time.  This lets you keep on top of things and avoid wasted time.
 
-This script is a very early work in progress.  Possible future additions:
+This script is a work in progress.  Possible future additions:
 
 * Are all your shipyards doing something?
 * Are there any construction projects, shipyard updates, or research projects that will finish in less than 30 days?  (for optimal time warping)
