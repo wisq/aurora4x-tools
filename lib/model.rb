@@ -104,8 +104,17 @@ class Population < Sequel::Model
     MineralDeposit.where(SystemBodyID: self[:SystemBodyID]).count > 0
   end
 
+  INDUSTRY_TYPES = [
+    0, # installations
+    3, # ship components
+    4, # build PDCs
+    5, # pre-fab PDCs
+    6, # assemble PDCs
+  ]
+
   def used_industry
-    IndustrialProject.where(PopulationID: id, Queue: 0, Pause: false).sum(:Percentage).to_f
+    IndustrialProject.where(PopulationID: id, ProductionType: INDUSTRY_TYPES,
+      Queue: 0, Pause: false).sum(:Percentage).to_f
   end
 
   def governor
