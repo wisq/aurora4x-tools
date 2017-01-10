@@ -193,6 +193,16 @@ def deathwatch(time_range)
     end
     $buffer << ''
   end
+
+  GameLog.where(EventType: 10, Time: time_range).order(:Time).each do |log|
+    next if log.time == time_range.min
+
+    if log.text.include?(' has retired from government service ')
+      output :warning, log.text
+      $buffer << ''
+    end
+  end
+
   puts *$buffer unless $buffer.empty?
 end
 
