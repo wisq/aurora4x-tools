@@ -120,48 +120,53 @@ def watch_until_after(time)
   first_pass = true
 
   loop do
-    $buffer = []
+    begin
+      $buffer = []
 
-    run_check(issues, :check_labs, 'All research labs busy.')
-    run_check(issues, :check_admins, 'All administrators assigned.')
-    run_check(issues, :check_industry, 'All industry in use.')
-    run_check(issues, :check_mines, 'All mining colonies operational.')
-    run_check(issues, :check_cmdr_health, 'All administrators & resarchers are healthy.')
+      check_cmdr_health if first_pass
+      run_check(issues, :check_labs, 'All research labs busy.')
+      run_check(issues, :check_admins, 'All administrators assigned.')
+      run_check(issues, :check_industry, 'All industry in use.')
+      run_check(issues, :check_mines, 'All mining colonies operational.')
 
-    sleep_duration = 2.0
-    if issues.empty?
-      output :good, 'No issues.' if issues.empty?
-      sleep_duration = 5.0
-    else
-      output :warning, "(#{issues.count} issues)"
+      sleep_duration = 2.0
+      if issues.empty?
+        output :good, 'No issues.' if issues.empty?
+        sleep_duration = 5.0
+      else
+        output :warning, "(#{issues.count} issues)"
+      end
+
+      # So here's a problem we have:
+      #
+      # When you click a time advance button, the game starts
+      # simulating immediately, without updating the game time.
+      #
+      # This means that new issues can pop up before we know
+      # the current turn is over.  The issues from this turn
+      # will show up in the previous turn, making the user
+      # think they left something unfixed.
+      #
+      # To mitigate this (without making things annoyingly
+      # unresponsive), on the first pass, we output immediately;
+      # but on subsequent passes, we do our sleep (and turn check)
+      # *before* we output anything, and skip output if time advances.
+      #
+      # We still want a basic time check, however, so we do a
+      # zero-second sleep here no matter what.
+      wait_game_advance(time, if first_pass then 0.0 else sleep_duration end)
+
+      to_output = $buffer - last_buffer
+      puts *to_output unless to_output.empty?
+      last_buffer = $buffer
+
+      # We don't need to do a zero-second sleep here,
+      # so we only sleep on the first run.
+      break if first_pass && wait_game_advance(time, sleep_duration)
+    rescue Sequel::DatabaseError => e
+      puts ansi(:red, "Error:") + e.message
+      puts "Retrying ..."
     end
-
-    # So here's a problem we have:
-    #
-    # When you click a time advance button, the game starts
-    # simulating immediately, without updating the game time.
-    #
-    # This means that new issues can pop up before we know
-    # the current turn is over.  The issues from this turn
-    # will show up in the previous turn, making the user
-    # think they left something unfixed.
-    #
-    # To mitigate this (without making things annoyingly
-    # unresponsive), on the first pass, we output immediately;
-    # but on subsequent passes, we do our sleep (and turn check)
-    # *before* we output anything, and skip output if time advances.
-    #
-    # We still want a basic time check, however, so we do a
-    # zero-second sleep here no matter what.
-    wait_game_advance(time, if first_pass then 0.0 else sleep_duration end)
-
-    to_output = $buffer - last_buffer
-    puts *to_output unless to_output.empty?
-    last_buffer = $buffer
-
-    # We don't need to do a zero-second sleep here,
-    # so we only sleep on the first run.
-    break if first_pass && wait_game_advance(time, sleep_duration)
   end
 end
 
