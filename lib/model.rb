@@ -110,6 +110,7 @@ class Population < Sequel::Model
     4, # build PDCs
     5, # pre-fab PDCs
     6, # assemble PDCs
+    9, # build orbital habitats
   ]
 
   def used_industry
