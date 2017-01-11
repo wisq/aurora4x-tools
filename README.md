@@ -29,6 +29,16 @@ This script is a work in progress.  Possible future additions:
 * Are there any construction projects, shipyard updates, or research projects that will finish in less than 30 days?  (for optimal time warping)
 * **Suggestions welcome!**
 
+### `industry.rb`
+
+Industry balancing calculator, for making several items at the same time and having them all finish at (roughly) the same time.
+
+This script does not touch the database, and can be run anywhere.
+
+Possible future additions:
+
+* Reading actual production queues from database.
+
 ### `test.rb`
 
 A development script for testing out raw queries, typically for adding them to other scripts.
